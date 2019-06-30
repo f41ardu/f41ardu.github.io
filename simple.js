@@ -253,5 +253,5 @@
     };
 
 
-  ScratchExtensions.register('tello:bit', descriptor, ext, {info: device_info, type: 'ble'});
+  ScratchExtensions.register('tello:scratch', descriptor, ext, {info: device_info, type: 'ble'});
 })({});
