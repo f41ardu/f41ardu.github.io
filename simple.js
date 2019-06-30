@@ -27,7 +27,7 @@
  (function(ext) {
 
     // Block and block menu descriptions
-    var locks =  [
+    var blocks =  [
 		[' ', 'Receiver', 'cnct'],
 		[' ', 'Send command', 'sendcommand'],
 		['r', 'Read %m.readcommand', 'readData', 'speed?'],
