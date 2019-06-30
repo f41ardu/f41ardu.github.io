@@ -299,5 +299,5 @@
     };
 
    // Register the extension
-   ScratchExtensions.register('Tello SDK 0.6.1', descriptor, ext, {info: device_info, type: 'ble'});
+   ScratchExtensions.register('Tello SDK 0.7.0', descriptor, ext);
  })({});
