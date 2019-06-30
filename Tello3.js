@@ -291,7 +291,7 @@
         'rotation'     : ['cw', 'ccw'],
         'readcommand'  : ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
     }; 
-    var descritor = {
+    var descriptor = {
 		blocks: blocks,
 		menus: menus,
 		url: 'https://github.com/f41ardu/TelloforScratch',
