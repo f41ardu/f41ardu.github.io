@@ -26,33 +26,41 @@
  
  (function(ext) {
 
-    // Block and block menu descriptions
-    var blocks =  [
-		[' ', 'Receiver', 'cnct'],
-		[' ', 'Send command', 'sendcommand'],
-		['r', 'Read %m.readcommand', 'readData', 'speed?'],
-		['r', 'Values %m.readcommand', 'readValues', 'speed?'],
-		[' ', 'take off', 'takeoff'],
-		[' ', 'land', 'land'],
-		[' ', 'emergency', 'emergency'],
-		[' ', 'fly %m.direction with distance %n', 'flydir', 'up', '20'],
-		[' ', 'rotate %m.rotation with angle %n', 'rotation', 'cw', '90'],
-		[' ', 'flip direction %m.flipDirection', 'setflipDirection', 'forward'],
-		[' ', 'set speed %n', 'setspeed', 80]	
- 	  ]; 
-	  
- 	  var menus  =  {
-        flipDirection: ['left', 'right', 'forward', 'backward'],
-        direction: ['up', 'down', 'forward', 'backward', 'left', 'right'],
-        rotation: ['cw', 'ccw'],
-        readcommand: ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
-    }; 
-	
-    var descriptor = {
-		blocks: blocks,
-		menus: menus,
-		url: 'https://github.com/f41ardu/TelloforScratch',
-    };
+   var blocks = [
+    ['h', 'when %m.btns button pressed', 'whenButtonPressed', 'A'],
+    [' '],
+    ['h', 'when moved', 'whenMoved'],
+    ['h', 'when shaken', 'whenShaken'],
+    ['h', 'when jumped', 'whenJumped'],
+    [' '],
+    [' ', 'display %s', 'writeText', 'Hello!'],
+    [' ', 'display %m.symbols','displaySymbol','❤'],
+    [' '],
+    [' ', 'set light x:%d.rowcol y:%d.rowcol %m.ledState', 'setMatrixLED', 1, 1, 'on'],
+    [' ', 'set all lights off' ,'clearAllMatrixLEDs'],
+    [' '],
+    ['h', 'when tilted %m.dirs', 'whenTilted', 'any'],
+    ['b', 'tilted %m.dirs?', 'isTilted', 'any'],
+    ['r', 'tilt angle %m.tiltDirs', 'tiltDirection', 'right'],
+    [' '],
+    ['h', 'when pin %d.touchPins connected', 'whenPinConnected', '0']
+  ];
+
+  var menus = {
+    dirs: ['any', 'right', 'left', 'up', 'down'],
+    btns: ['A', 'B', 'any'],
+    ledState: ['on', 'off'],
+    touchPins: [0, 1, 2],
+    tiltDirs: ['right', 'left', 'up', 'down'],
+    rowcol: [1, 2, 3, 4, 5, 'random'],
+    symbols: ['❤', '♫', '☓', '✓', '↑', '↓', '←', '→', '◯', '☀', '☺', '!', '?']
+  };
+
+  var descriptor = {
+    blocks: blocks,
+    menus: menus,
+    url: 'https://lancaster-university.github.io/microbit-docs'
+  };
 
    // Register the extension
    ScratchExtensions.register('Tello SDK 0.6.1', descriptor, ext, {info: device_info, type: 'ble'}); );
