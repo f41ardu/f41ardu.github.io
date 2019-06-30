@@ -285,11 +285,11 @@
 		[' ', 'set speed %n', 'setspeed', 80]	
  	  ]; 
 	  
- 	  var menus  =  {
-        'flipDirection': ['left', 'right', 'forward', 'backward'],
-        'direction'    : ['up', 'down', 'forward', 'backward', 'left', 'right'],
-        'rotation'     : ['cw', 'ccw'],
-        'readcommand'  : ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
+  var menus  =  {
+        flipDirection: ['left', 'right', 'forward', 'backward'],
+        direction: ['up', 'down', 'forward', 'backward', 'left', 'right'],
+        rotation: ['cw', 'ccw'],
+        readcommand: ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
     }; 
 	
     var descriptor = {
