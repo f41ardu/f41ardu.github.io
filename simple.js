@@ -260,5 +260,5 @@
     url: 'https://lancaster-university.github.io/microbit-docs'
   };
 
-  ScratchExtensions.register('simple', descriptor, ext, {info: device_info, type: 'ble'});
+  ScratchExtensions.register('micro:bit', descriptor, ext, {info: device_info, type: 'ble'});
 })({});
