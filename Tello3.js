@@ -24,7 +24,7 @@
   * 
   */
  
- window.ScratchExtensions = new (function () {
+ (function(ext) {
    // /home/pi/code/TelloforScratch/TelloScratch.js
    // Tello udp port and IP address
    var PORT = 8889 ;
@@ -270,7 +270,7 @@
      console.log(myStatus);
    };
 
-   // Block and block menu descriptions
+    // Block and block menu descriptions
     var locks =  [
 		[' ', 'Receiver', 'cnct'],
 		[' ', 'Send command', 'sendcommand'],
@@ -291,12 +291,12 @@
         'rotation'     : ['cw', 'ccw'],
         'readcommand'  : ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
     }; 
+	
     var descriptor = {
 		blocks: blocks,
 		menus: menus,
 		url: 'https://github.com/f41ardu/TelloforScratch',
-   
-	};
+    };
 
    // Register the extension
    ScratchExtensions.register('Tello SDK 0.6.1', descriptor, ext);
