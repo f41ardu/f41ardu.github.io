@@ -271,7 +271,7 @@
    };
 
     // Block and block menu descriptions
-    var locks =  [
+    var blocks =  [
 		[' ', 'Receiver', 'cnct'],
 		[' ', 'Send command', 'sendcommand'],
 		['r', 'Read %m.readcommand', 'readData', 'speed?'],
@@ -295,7 +295,7 @@
     var descriptor = {
 		blocks: blocks,
 		menus: menus,
-		url: 'https://github.com/f41ardu/TelloforScratch',
+		url: 'https://github.com/f41ardu/TelloforScratch'
     };
 
    // Register the extension
