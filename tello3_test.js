@@ -48,37 +48,7 @@
 	'tof?' : 8, // distance cm
    }; 
    
-   // Scratch UDP Listener (experimental) 
-   ext.cnct = function() {	
-   if (connected == false) {
-		server1.on("error", function (err) {
-			alert("server error:\n" + err.stack);
-			server.close();
-		});
-
-		server1.on("message", function (msg, rinfo) {
-			//setReceived("server got: " + msg + " from " + rinfo.address + ":" + rinfo.port); 
-			getData = ' '+msg+' '; 
-			//myStatus = 1;         
-			});
-
-		server1.on("listening", function () {
-			myStatus = 2; });
-	    // listen on all IP adresses
-		server1.bind(listenerPort,listenerHOST);
-		connected = true; 	
-	} else {
-		alert ("Scratch already listening on udp ports"); 
-	}
-   };		    
   
-   // end UDP Listener (experimental)
-   
-   // Cleanup function when the extension is unloaded
-
-   ext._shutdown = function() {
-	   server1.close();
-   };
 
    // Status reporting code
 
