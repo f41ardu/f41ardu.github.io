@@ -14,13 +14,6 @@
 
 (function(ext) {
 
- 
-   // added function to support the Start The Program block
-   ext.goGreen = function() {
-     myStatus = 2;
-     console.log(myStatus);
-   };
-
    // Block and block menu descriptions
     var blocks =  [
 		[' ', 'Receiver', 'cnct'],
