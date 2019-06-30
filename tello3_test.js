@@ -60,8 +60,8 @@
 			//myStatus = 1;         
 			});
 
-		server1.on("listening", function (err) { 
-			alert("server error:\n" + err.stack);
+		server1.on("listening", function () { 
+			alert("Listeneing\n");
 			myStatus = 2; });
 	    // listen on all IP adresses
 		server1.bind(listenerPort,listenerHOST);
