@@ -1,8 +1,5 @@
 (function(ext) {
-	
-   var alarm_went_off = false; // This becomes true after the alarm goes off
-    
-   
+    var alarm_went_off = false; // This becomes true after the alarm goes off
 
     // Cleanup function when the extension is unloaded
     ext._shutdown = function() {};
@@ -29,35 +26,17 @@
 
        return false;
     };
+    
+    
 
-   // Block and block menu descriptions
-    var blocks =  [
-		[' ', 'Receiver', 'cnct'],
-		[' ', 'Send command', 'sendcommand'],
-		['r', 'Read %m.readcommand', 'readData', 'speed?'],
-		['r', 'Values %m.readcommand', 'readValues', 'speed?'],
-		[' ', 'take off', 'takeoff'],
-		[' ', 'land', 'land'],
-		[' ', 'emergency', 'emergency'],
-		[' ', 'fly %m.direction with distance %n', 'flydir', 'up', '20'],
-		[' ', 'rotate %m.rotation with angle %n', 'rotation', 'cw', '90'],
-		[' ', 'flip direction %m.flipDirection', 'setflipDirection', 'forward'],
-		[' ', 'set speed %n', 'setspeed', 80]	
- 	  ]; 
-	  
-  var menus  =  {
-        flipDirection: ['left', 'right', 'forward', 'backward'],
-        direction: ['up', 'down', 'forward', 'backward', 'left', 'right'],
-        rotation: ['cw', 'ccw'],
-        readcommand: ['speed?','battery?','time?','height?','temp?','attitude?','baro?','acceleration?','tof?']
-    }; 
-	
+    // Block and block menu descriptions
     var descriptor = {
-		blocks: blocks,
-		menus: menus,
-		url: 'https://github.com/f41ardu/TelloforScratch'
+        blocks: [
+            ['', 'run alarm after %n seconds', 'set_alarm', '2'],
+            ['h', 'when alarm goes off', 'when_alarm'],
+        ]
     };
 
     // Register the extension
-    ScratchExtensions.register('Tello extension', descriptor, ext {type:'network'});
+    ScratchExtensions.register('Alarm extension', descriptor, ext);
 })({});
