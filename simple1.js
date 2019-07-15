@@ -60,7 +60,7 @@
   var device_info = {uuid: [SERVICE_UUID]};
   device_info["read_characteristics"] = rx;
   device_info["write_characteristics"] = tx;
-  
+
   function processInput(inputData) {
     //console.log(inputData);
 
