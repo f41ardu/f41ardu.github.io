@@ -1,5 +1,12 @@
 (function(ext) {
     var alarm_went_off = false; // This becomes true after the alarm goes off
+    
+   // udp connector  
+    var dgram = require('dgram');
+   // client connector (send commands) 
+    var client = dgram.createSocket('udp4');
+   // server connector (receive Telle response) 
+    var server1 = dgram.createSocket('udp4');
 
     // Cleanup function when the extension is unloaded
     ext._shutdown = function() {};
