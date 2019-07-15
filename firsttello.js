@@ -1,12 +1,8 @@
 (function(ext) {
 	
-	
-	
-	
-	
-    var alarm_went_off = false; // This becomes true after the alarm goes off
+   var alarm_went_off = false; // This becomes true after the alarm goes off
     
-    var PORT = 8889;
+   var PORT = 8889;
    var HOST = '192.168.10.1'; // Tello IP
    // var HOST = '127.0.0.1'; // Test localhost (debug mode)
    
@@ -39,7 +35,7 @@
    }; 
    
    // Scratch UDP Listener (experimental) 
-   ext.cnct = function() {	
+   ext.cnct = function() = {	
    if (connected == false) {
 		server1.on("error", function (err) {
 			alert("server error:\n" + err.stack);
