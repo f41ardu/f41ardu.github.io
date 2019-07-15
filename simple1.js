@@ -13,8 +13,54 @@
  */
 
 (function(ext) {
-  
+
+  var SERVICE_UUID = 'f005',
+    OUTPUT_CHAR = '5261da01fa7e42ab850b7c80220097cc',
+    LED_TEXT_CHAR = '5261da03fa7e42ab850b7c80220097cc',
+    LED_MATRIX_CHAR = '5261da04fa7e42ab850b7c80220097cc';
+
+  var BTN_UP = 0,
+    BTN_DOWN = 1,
+    BTN_HELD = 2;
+
+  var BUFFER_SIZE = 2;
+
+  var symbols2hex =  {
+    '❤': 0xAAC544,
+    '♫': 0xF4AF78,
+    '☓': 0x1151151,
+    '✓': 0x8A88,
+    '↑': 0x477C84,
+    '↓': 0x427DC4,
+    '←': 0x467D84,
+    '→': 0x437CC4,
+    '◯': 0xE8C62E,
+    '☀': 0x1577DD5,
+    '☺': 0x5022E,
+    '!': 0x421004,
+    '?': 0xC91004
+  };
+
   var device = null;
+
+  var buttonState = {A: 0, B: 0};
+  var tiltX = 0;
+  var tiltY = 1;
+  var gestureStates = 0;
+  var ledMatrixState = [0, 0, 0, 0, 0];
+  var pinStates = [0, 0, 0];
+
+  var rx = {};
+  rx[OUTPUT_CHAR] = {notify: true};
+
+  var tx = {};
+  tx[LED_TEXT_CHAR] = {};
+  tx[LED_MATRIX_CHAR] = {};
+
+  var device_info = {uuid: [SERVICE_UUID]};
+  device_info["read_characteristics"] = rx;
+  device_info["write_characteristics"] = tx;
+  
   // /home/pi/code/TelloforScratch/TelloScratch.js
    // Tello udp port and IP address
    var PORT = 8889 ;
@@ -71,187 +117,130 @@
 	} else {
 		alert ("Scratch already listening on udp ports"); 
 	}
-   };		    
-  
-   // end UDP Listener (experimental)
-   
-   // Cleanup function when the extension is unloaded
+   };	
 
-   ext._shutdown = function() {
-	   server1.close();
-   };
+  function processInput(inputData) {
+    //console.log(inputData);
 
-   // Status reporting code
+    tiltX = inputData[1] | (inputData[0] << 8);
+    if (tiltX > (1 << 15)) tiltX -= (1 << 16);
+    tiltY = inputData[3] | (inputData[2] << 8);
+    if (tiltY > (1 << 15)) tiltY -= (1 << 16);
 
-   // Use this to report missing hardware, plugin
+    buttonState['A'] = inputData[4];
+    buttonState['B'] = inputData[5];
 
-   // or unsupported browser
+    pinStates[0] = inputData[6];
+    pinStates[1] = inputData[7];
+    pinStates[2] = inputData[8];
 
-   ext._getStatus = function() {
-     return {status: myStatus, msg: 'Ready'};
-   };
-   
-   // Functions for block with type 'w' will get a callback function as the 
-   // final argument. This should be called to indicate that the block can
-   // stop waiting.
-   // Send command and set Tello into SDK mode
-   ext.sendcommand = function () {
-   
-   var message = new Buffer('command');
-    
-     if (connected == false) {
-            alert("Tello not Connected! \n \n Establish WIFI connection first.");
-		}
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		if (err) { 
-			alert("Command could not send: " + err);
-			client.close();
-			}
-		});
-   };
-   
-   // Send takeoff
-   ext.takeoff = function () {
-   
-   var message = new Buffer('takeoff');
-     
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-		});
-   };
-   
-   // Send land
-   ext.land = function () {
-   
-   var message = new Buffer('land');
+    gestureStates = inputData[9];
+  }
 
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-		});   
-   };
-   
-    // Send set speed
-   ext.setspeed = function (val) {
-   
-   var message = new Buffer('speed ' + val);
+  function getTilt(dir) {
+    if (dir === 'left')
+      return Math.round(tiltX / -10);
+    else if (dir == 'right')
+      return Math.round(tiltX / 10);
+    else if (dir == 'up')
+      return Math.round(tiltY / -10);
+    else if (dir == 'down')
+      return Math.round(tiltY / 10);
+  }
 
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-		});   
-   };
- 
-   // Send set fly direction and distance to fly
-   ext.flydir = function (direction, distance) {
-   
-   var message = new Buffer(direction + ' ' + distance);
+  function map(val, aMin, aMax, bMin, bMax) {
+    if (val > aMax) val = aMax;
+    else if (val < aMin) val = aMin;
+    return (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
+  }
 
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-		});
-   };
-   
-   // Send rotation direction and rotation angle
-   ext.rotation = function (direction, angle) {
-   
-   var message = new Buffer(direction + ' ' + angle);
+  ext.whenButtonPressed = function(btn) {
+    if (btn === 'any')
+      return buttonState['A'] == BTN_DOWN | buttonState['B'] == BTN_DOWN;
+    return buttonState[btn] == BTN_DOWN;
+  };
 
-	client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-		});
-   };
+  ext.whenPinConnected = function(pin) {
+    pin = parseInt(pin);
+    if (isNaN(pin) | pin < 0 | pin > 3) return;
+    return pinStates[pin];
+  };
 
-   // Send set flip Direction
-   ext.setflipDirection = function (val) {
-   
-   var message = new Buffer('flip ' + val.charAt(0));
+  ext.writeText = function(output) {
+    // Make sure no more than 20 characters are written
+    output = output.toString().substring(0, 20);
+    device.emit('write', {uuid: LED_TEXT_CHAR, bytes: output.substring(0, 20)});
+  };
 
-   client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
-		//if (err) throw err;
-		//client.close();
-   });
-   
-   };
-   
-   // read Data improved for all Tello return codes, flight and state commands
-   ext.readData = function (val) {
-     
-     var message = new Buffer(val); 		
-	 var test = getData.trim();
-	 // interpreter for data will be implemented later
-     if ( test != '' ) {
-        treturn = test; 
-		} else {
-			treturn = 'empty';
-		}; 
-	 	 
-     return treturn;
-   };
-   
-   // read Data improved for all Tello return codes, flight and state commands
-   ext.readValues = function (val) {
-     
-	 var test = getData.trim();
-	 // interpreter for data will be implemented later
-     if ( test != '' ) {
-        treturn = test;
-        var array = test.split(';').map(function (a) { return a.split(':'); });
-	    
-	 }; 
-	 var select = dict[val]; 
-	 // return acceleration
-	 if ( select == 0 ) {  
-		 var x = array[select][1];
-		 var y = array[select+1][1];
-		 var z = array[select+2][1]; 
-	     var wegot = parseFloat(Math.round(Math.sqrt(x*x+y*y+z*z) * 100) / 100).toFixed(2); 
-    // parseFloat(Math.round(Math.sqrt(x*x+y*y+z*z) * 100) / 100).toFixed(2);
-	 };
-	 // return speed
-	 if ( select == 3 ) {  
-		 var x = array[select][1];
-		 var y = array[select+1][1];
-		 var z = array[select+2][1]; 
-	     var wegot = parseFloat(Math.round(Math.sqrt(x*x+y*y+z*z) * 100) / 100).toFixed(2); 
-    // parseFloat(Math.round(Math.sqrt(x*x+y*y+z*z) * 100) / 100).toFixed(2);
-	 };
-	 if ( select == 6 ) {
-		 var x = parseFloat(array[select][1]);
-		 var y = parseFloat(array[select+1][1]);
-		 var z = (x+y)/2.;
-		 var wegot = z;
-	 };
-	 // tof 
-	 if ( select == 8 ) {
-		 var x = parseFloat(array[select][1]);
-		 var wegot = x;
-	 };
-	 // height 
-	 if ( select == 9 ) {
-		 var x = parseFloat(array[select][1]);
-		 var wegot = x;
-	 };
-	  // battery 
-	 if ( select == 10 ) {
-		 var x = parseFloat(array[select][1]);
-		 var wegot = x;
-	 };
-	  // barometer 
-	 if ( select == 11 ) {
-		 var x = parseFloat(array[select][1]);
-		 var wegot = x;
-	 };
-	  // motor time 
-	 if ( select == 12 ) {
-		 var x = array[select][1];
-		 var wegot = x;
-	 };
-	 return wegot;
-   };
+  function printSymbol(hex) {
+    if (!device) return;
+    var output = [0, 0, 0, 0, 0];
+    output[0] = (hex >> 20) & 0x1F;
+    output[1] = (hex >> 15) & 0x1F;
+    output[2] = (hex >> 10) & 0x1F;
+    output[3] = (hex >> 5) & 0x1F;
+    output[4] = hex & 0x1F;
+    device.emit('write', {uuid: LED_MATRIX_CHAR, bytes: output});
+  };
+
+  ext.displaySymbol = function(symbol) {
+    var hex = symbols2hex[symbol];
+    printSymbol(hex);
+  };
+
+  ext.setMatrixLED = function(col, row, state) {
+    if (col === 'random') col = getRandomLED();
+    if (row === 'random') row = getRandomLED();
+    col = parseInt(col);
+    if (isNaN(col) | col < 1 | col > 5) return;
+    row = parseInt(row);
+    if (isNaN(row) | row < 1 | row > 5) return;
+    if (state === 'on')
+      ledMatrixState[row-1] |= 1 << 5-col;
+    else if (state === 'off')
+      ledMatrixState[row-1] &= ~(1 << 5-col);
+    device.emit('write', {uuid: LED_MATRIX_CHAR, bytes: ledMatrixState});
+  };
+
+  function getRandomLED() {
+    return Math.floor(Math.random() * (5)) + 1;
+  }
+
+  ext.clearAllMatrixLEDs = function() {
+    for (var i=0; i<5; i++)
+      ledMatrixState[i] = 0;
+    device.emit('write', {uuid: LED_MATRIX_CHAR, bytes: ledMatrixState});
+  };
+
+  ext.whenMoved = function() {
+    return (gestureStates >> 2) & 1;
+  };
+
+  ext.whenShaken = function() {
+    return gestureStates & 1;
+  };
+
+  ext.whenJumped = function() {
+    return (gestureStates >> 1) & 1;
+  };
+
+  ext.whenTilted = function(dir) {
+    if (dir === 'any')
+      return Math.abs(getTilt('right')) > 45 || Math.abs(getTilt('up')) > 45;
+    else
+      return getTilt(dir) > 45;
+  };
+
+  ext.isTilted = function(dir) {
+    if (dir === 'any')
+      return Math.abs(getTilt('right')) > 45 || Math.abs(getTilt('up')) > 45;
+    else
+      return getTilt(dir) > 45;
+  };
+
+  ext.tiltDirection = function(dir) {
+    return getTilt(dir);
+  };
 
   ext._getStatus = function() {
     if (device) {
@@ -322,5 +311,5 @@
     };
 
 
-  ScratchExtensions.register('tello:scratch', descriptor, ext);
+  ScratchExtensions.register('tello:scratch', descriptor, ext, {info: device_info, type: 'ble'});
 })({});
