@@ -13,7 +13,8 @@
  */
 
 (function(ext) {
-
+  
+  var device = null;
   // /home/pi/code/TelloforScratch/TelloScratch.js
    // Tello udp port and IP address
    var PORT = 8889 ;
